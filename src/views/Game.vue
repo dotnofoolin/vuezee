@@ -1,15 +1,48 @@
 <template>
-  <div class="game">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <br>
-    <span v-for="dice in all_dice" :key="dice.dice_id">
-      <span class="dice-size">
-        <span class="dice pointed-cursor" :class="[{ 'dice-selected': dice.selected }, `dice-${dice.value}`]" @click="toggleSelected(dice)"></span>
-      </span>
-    </span>
+  <div id="game">
+    <div class="container">
+      <br>
+      <div class="tile is-ancestor">
+        <div class="tile is-parent">
+          <div class="tile is-child box">
+            <div class="fancy-title">Vuezee</div>
+          </div>
+        </div>
+        <div class="tile is-parent">
+          <div class="tile is-child box">
+            <div v-if="roll_count === 0">
+              <p >Hello! Press Roll To Begin.</p>
+            </div>
+            <div v-if="roll_count > 0">
+              <span v-for="dice in all_dice" :key="dice.dice_id">
+                <span class="dice-size">
+                  <span class="dice pointed-cursor" :class="[{ 'dice-selected': dice.selected }, `dice-${dice.value}`]" @click="toggleSelected(dice)"></span>
+                </span>
+              </span>
+            </div>
 
-    <br>
-    <button @click="rollAll()">Roll</button>
+            <br>
+            <p>
+              <button class="button is-primary" @click="rollAll()" :disabled="rollLimitReached()">Roll</button>
+              <button class="button is-warning" @click="roll_count = 0">Reset</button>
+            </p>
+            <p>
+              Rolls: {{ roll_count }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="tile is-ancestor">
+        <div class="tile is-parent">
+          <div class="tile is-child box">
+            Icon test:
+            <span class="icon has-text-primary">
+              <i class="fas fa-home"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -48,9 +81,6 @@
         ]
       }
     },
-    mounted () {
-      this.rollAll()
-    },
     methods: {
       roll (dice) {
         dice.value = Math.floor(Math.random() * 6) + 1
@@ -59,15 +89,28 @@
         for (var dice of this.all_dice.filter(d => d.selected === false)) {
           this.roll(dice)
         }
+
+        this.roll_count++
       },
       toggleSelected (dice) {
         dice.selected = !dice.selected
+      },
+      rollLimitReached () {
+        return this.roll_count >= 3
       }
     }
   }
 </script>
 
 <style scoped lang="scss">
+  @import url('https://fonts.googleapis.com/css?family=Pacifico');
+
+  #game {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+  }
+
   .dice {
     display: inline-block;
     padding: .65em;
@@ -94,5 +137,12 @@
 
   .pointed-cursor {
     cursor: pointer;
+  }
+
+  .fancy-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 6em;
+    transform-origin: center;
+    transform: rotate(-15deg);
   }
 </style>
