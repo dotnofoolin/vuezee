@@ -1,44 +1,88 @@
 <template>
-  <div id="game">
+  <div id="game" class="has-background-info">
     <div class="container">
       <br>
       <div class="tile is-ancestor">
-        <div class="tile is-parent">
+        <div class="tile is-parent is-4 is-vertical">
           <div class="tile is-child box">
+            <i class="fas fa-dice fancy-title-dice"></i>
             <div class="fancy-title">Vuezee</div>
           </div>
-        </div>
-        <div class="tile is-parent">
           <div class="tile is-child box">
-            <div v-if="roll_count === 0">
-              <p >Hello! Press Roll To Begin.</p>
-            </div>
-            <div v-if="roll_count > 0">
+            <p>{{ rollText() }}</p>
+            <div class="is-marginless">
               <span v-for="dice in all_dice" :key="dice.dice_id">
-                <span class="dice-size">
-                  <span class="dice pointed-cursor" :class="[{ 'dice-selected': dice.selected }, `dice-${dice.value}`]" @click="toggleSelected(dice)"></span>
+                <span class="dice-size is-size-1-mobile">
+                  <i class="fas pointed-cursor" :class="[{ 'has-text-primary': dice.selected }, diceClass(dice.value)]" @click="toggleSelected(dice)"></i>
                 </span>
               </span>
             </div>
-
-            <br>
             <p>
-              <button class="button is-primary" @click="rollAll()" :disabled="rollLimitReached()">Roll</button>
-              <button class="button is-warning" @click="roll_count = 0">Reset</button>
-            </p>
-            <p>
-              Rolls: {{ roll_count }}
+              <button class="button is-primary" @click="rollAll()" :disabled="rollLimitReached()"><i class="fas fa-dice fa-spin"></i></button>
+              <button class="button is-warning" @click="resetDice()">Reset</button>
             </p>
           </div>
+          <div class="tile is-child box">
+            <p>Vuezee is Yahtzee implemented in Vue.js for fun.</p>
+          </div>
         </div>
-      </div>
-      <div class="tile is-ancestor">
         <div class="tile is-parent">
           <div class="tile is-child box">
-            Icon test:
-            <span class="icon has-text-primary">
-              <i class="fas fa-home"></i>
-            </span>
+            <table class="table is-fullwidth">
+              <thead>
+                <tr>
+                  <td class="section-title" width="20%">Upper Section</td>
+                  <td class="section-title" width="60%">How To Score</td>
+                  <td class="section-title" width="20%">Score</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="line in scorecard.upper_section" :key="line.label">
+                  <td>{{ line.label }}</td>
+                  <td>{{ line.howto }}</td>
+                  <td>{{ line.score }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="table is-fullwidth">
+              <thead>
+                <tr>
+                  <td class="section-title" width="20%">Lower Section</td>
+                  <td class="section-title" width="60%">How To Score</td>
+                  <td class="section-title" width="20%">Score</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="line in scorecard.lower_section" :key="line.label">
+                  <td>{{ line.label }}</td>
+                  <td>{{ line.howto }}</td>
+                  <td>{{ line.score }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="table is-fullwidth">
+              <thead>
+                <tr>
+                  <td class="section-title" width="20%">Totals</td>
+                  <td class="section-title" width="60%"></td>
+                  <td class="section-title" width="20%">Score</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="2">Upper Section Total</td>
+                  <td>{{ scorecard.upper_total }}</td>
+                </tr>
+                <tr>
+                  <td colspan="2">Lower Section Total</td>
+                  <td>{{ scorecard.lower_total }}</td>
+                </tr>
+                <tr>
+                  <td colspan="2">Grand Total</td>
+                  <td>{{ scorecard.grand_total }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -78,7 +122,100 @@
             value: null,
             selected: false
           }
-        ]
+        ],
+        scorecard: {
+          upper_section: [
+            {
+              label: 'Aces',
+              howto: 'Count and Score Only Aces',
+              score: 0,
+              scored: false
+            },
+            {
+              label: 'Twos',
+              howto: 'Count and Score Only Twos',
+              score: 0,
+              scored: false
+            },
+            {
+              label: 'Threes',
+              howto: 'Count and Score Only Threes',
+              score: 0,
+              scored: false
+            },
+            {
+              label: 'Fours',
+              howto: 'Count and Score Only Fours',
+              score: 0,
+              scored: false
+            },
+            {
+              label: 'Fives',
+              howto: 'Count and Score Only Fives',
+              score: 0,
+              scored: false
+            },
+            {
+              label: 'Sixes',
+              howto: 'Count and Score Only Sixes',
+              score: 0,
+              scored: false
+            },
+            {
+              label: 'Bonus',
+              howto: '35 Points if Aces thru Sixes >= 63',
+              score: 0,
+              scored: false
+            }
+          ],
+          lower_section: {
+            three_of_a_kind: {
+              label: '3 of a Kind',
+              howto: 'Add Total of All Dice',
+              score: 0,
+              scored: false
+            },
+            four_of_a_kind: {
+              label: '4 of a Kind',
+              howto: 'Add Total of All Dice',
+              score: 0,
+              scored: false
+            },
+            full_house: {
+              label: 'Full House',
+              howto: 'One Triple and One Double',
+              score: 0,
+              scored: false
+            },
+            small_straight: {
+              label: 'Small Straight',
+              howto: 'Sequence of 4',
+              score: 0,
+              scored: false
+            },
+            large_straight: {
+              label: 'Large Straight',
+              howto: 'Sequence of 5',
+              score: 0,
+              scored: false
+            },
+            vuezee: {
+              label: 'Vuezee',
+              howto: '5 of a Kind',
+              score: 0,
+              scored: false
+            },
+            chance: {
+              label: 'Chance',
+              howto: 'Add All 5 Dice',
+              score: 0,
+              scored: false
+            }
+          },
+          upper_total: 0,
+          lower_total: 0,
+          grand_total: 0,
+        }
       }
     },
     methods: {
@@ -93,10 +230,41 @@
         this.roll_count++
       },
       toggleSelected (dice) {
+        if (this.roll_count === 0) {
+          return
+        }
+
         dice.selected = !dice.selected
       },
       rollLimitReached () {
         return this.roll_count >= 3
+      },
+      diceClass (value) {
+        switch(value) {
+          case 1: return 'fa-dice-one'
+          case 2: return 'fa-dice-two'
+          case 3: return 'fa-dice-three'
+          case 4: return 'fa-dice-four'
+          case 5: return 'fa-dice-five'
+          case 6: return 'fa-dice-six'
+          default: return 'fa-square'
+        }
+      },
+      rollText () {
+        switch(this.roll_count) {
+          case 1: return 'First Roll'
+          case 2: return 'Second Roll'
+          case 3: return 'Final Roll. Please Score.'
+          default: return 'Click Roll to Get Started!'
+        }
+      },
+      resetDice () {
+        this.roll_count = 0
+
+        for (var dice of this.all_dice) {
+          dice.value = null
+          dice.selected = false
+        }
       }
     }
   }
@@ -111,28 +279,14 @@
     text-align: center;
   }
 
-  .dice {
-    display: inline-block;
-    padding: .65em;
-    background-size: 1em;
-    background-repeat: no-repeat;
-    background-position: center center;
-    border-radius: 25px;
-    }
-
-  .dice-1{background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cg transform='translate(113.25%2C-494.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-406.5%2C374.7)'%3E%3Crect x='588' y='240.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(337.5%2C87.5)' cx='325' cy='227.4' r='12.5' style='fill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");}
-  .dice-2{background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(109.9%2C-505.1)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-415.6%2C485.6)'%3E%3Crect x='613' y='40.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(326.5%2C-148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(398.5%2C-76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");}
-  .dice-3{background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(84.9%2C-515.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-290.6%2C514.9)'%3E%3Crect x='413' y='2.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(126.5%2C-186)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(198.5%2C-114)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(162.5%2C-150)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");}
-  .dice-4{background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(90.7%2C-499.7)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-302.7%2C367.8)'%3E%3Crect x='425.5' y='265.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(139%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(139%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C76.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(211%2C148.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");}
-  .dice-5{background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(89.2%2C-510.5)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-194.9%2C372.3)'%3E%3Crect x='213' y='277.9' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-73.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-73.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C89)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-1.5%2C161)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-37.5%2C125)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E ");}
-  .dice-6{background-image: url("data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' version='1.1' viewBox='0 0 76.5 76.5' height='21.6' width='21.6'%3E%3Cstyle%3E.s0%7Bfill%3A%23000%3Bstroke-width%3A3%3Bstroke%3A%23000%3B%7D%3C%2Fstyle%3E%3Cg transform='translate(86.2%2C-500.6)'%3E%3Cg transform='matrix(0.5%2C0%2C0%2C0.5%2C-98.2%2C356.2)'%3E%3Crect x='25.5' y='290.4' width='150' height='150' ry='50' rx='50' style='fill%3A%23fff%3Bstroke-width%3A3%3Bstroke%3A%23000'%2F%3E%3Ccircle transform='translate(-261%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-261%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C101.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C173.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3Ccircle transform='translate(-189%2C137.5)' cx='325' cy='227.4' r='12.5' class='s0'%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");}
+  .fancy-title-dice {
+    font-size: 5em;
+  }
 
   .dice-size {
     font-size: 4em;
-  }
-
-  .dice-selected {
-    background-color: #FF00EE;
+    padding-left: .10em;
+    padding-right: .10em;
   }
 
   .pointed-cursor {
@@ -144,5 +298,10 @@
     font-size: 6em;
     transform-origin: center;
     transform: rotate(-15deg);
+  }
+
+  .section-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.25em;
   }
 </style>
