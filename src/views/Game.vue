@@ -37,10 +37,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="line in scorecard.upper_section" :key="line.label">
+                <tr class="pointed-cursor" v-for="line in scorecard.upper_section" :key="line.label" @click="scoreRoll(line)">
                   <td>{{ line.label }}</td>
                   <td>{{ line.howto }}</td>
-                  <td>{{ line.score }}</td>
+                  <td>{{ line.score }} <i class="fas fa-check" v-if="line.scored"></i></td>
                 </tr>
               </tbody>
             </table>
@@ -53,10 +53,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="line in scorecard.lower_section" :key="line.label">
+                <tr class="pointed-cursor" v-for="line in scorecard.lower_section" :key="line.label" @click="scoreRoll(line)">
                   <td>{{ line.label }}</td>
                   <td>{{ line.howto }}</td>
-                  <td>{{ line.score }}</td>
+                  <td>{{ line.score }} <i class="fas fa-check" v-if="line.scored"></i></td>
                 </tr>
               </tbody>
             </table>
@@ -126,92 +126,106 @@
         scorecard: {
           upper_section: [
             {
+              id: 'aces',
               label: 'Aces',
               howto: 'Count and Score Only Aces',
               score: 0,
               scored: false
             },
             {
+              id: 'twos',
               label: 'Twos',
               howto: 'Count and Score Only Twos',
               score: 0,
               scored: false
             },
             {
+              id: 'threes',
               label: 'Threes',
               howto: 'Count and Score Only Threes',
               score: 0,
               scored: false
             },
             {
+              id: 'fours',
               label: 'Fours',
               howto: 'Count and Score Only Fours',
               score: 0,
               scored: false
             },
             {
+              id: 'fives',
               label: 'Fives',
               howto: 'Count and Score Only Fives',
               score: 0,
               scored: false
             },
             {
+              id: 'sixes',
               label: 'Sixes',
               howto: 'Count and Score Only Sixes',
               score: 0,
               scored: false
             },
             {
+              id: 'bonus',
               label: 'Bonus',
               howto: '35 Points if Aces thru Sixes >= 63',
               score: 0,
               scored: false
             }
           ],
-          lower_section: {
-            three_of_a_kind: {
+          lower_section: [
+            {
+              id: 'three_of_a_kind',
               label: '3 of a Kind',
               howto: 'Add Total of All Dice',
               score: 0,
               scored: false
             },
-            four_of_a_kind: {
+            {
+              id: 'four_of_a_kind',
               label: '4 of a Kind',
               howto: 'Add Total of All Dice',
               score: 0,
               scored: false
             },
-            full_house: {
+            {
+              id: 'full_house',
               label: 'Full House',
-              howto: 'One Triple and One Double',
+              howto: 'One Triple and One Double (25)',
               score: 0,
               scored: false
             },
-            small_straight: {
+            {
+              id: 'small_straight',
               label: 'Small Straight',
-              howto: 'Sequence of 4',
+              howto: 'Sequence of 4 (30)',
               score: 0,
               scored: false
             },
-            large_straight: {
+            {
+              id: 'large_straight',
               label: 'Large Straight',
-              howto: 'Sequence of 5',
+              howto: 'Sequence of 5 (40)',
               score: 0,
               scored: false
             },
-            vuezee: {
+            {
+              id: 'vuezee',
               label: 'Vuezee',
-              howto: '5 of a Kind',
+              howto: '5 of a Kind (50)',
               score: 0,
               scored: false
             },
-            chance: {
+            {
+              id: 'chance',
               label: 'Chance',
               howto: 'Add All 5 Dice',
               score: 0,
               scored: false
             }
-          },
+          ],
           upper_total: 0,
           lower_total: 0,
           grand_total: 0,
@@ -265,6 +279,59 @@
           dice.value = null
           dice.selected = false
         }
+      },
+      scoreRoll (line) {
+        if (line.scored || this.roll_count == 0 || line.id === 'bonus') {
+          return
+        }
+
+        switch(line.id) {
+          case 'aces':
+            this.scoreIndividualUpper(line, 1)
+            break
+          case 'twos':
+            this.scoreIndividualUpper(line, 2)
+            break
+          case 'threes':
+            this.scoreIndividualUpper(line, 3)
+            break
+          case 'fours':
+            this.scoreIndividualUpper(line, 4)
+            break
+          case 'fives':
+            this.scoreIndividualUpper(line, 5)
+            break
+          case 'sixes':
+            this.scoreIndividualUpper(line, 6)
+            break
+          default: console.log(line.id)
+        }
+
+        // Check for bonus and score it.
+        var bonus_line = this.scorecard.upper_section.filter(l => l.id === 'bonus')[0]
+        if (!bonus_line.scored) {
+          if (this.scorecard.upper_total >= 63) {
+            bonus_line.score = 35
+            this.scorecard.upper_total += bonus_line.score
+            bonus_line.scored = true
+          }
+        }
+
+        line.scored = true
+        this.addGrandTotal()
+        this.resetDice()
+      },
+      addGrandTotal () {
+        this.scorecard.grand_total = this.scorecard.upper_total + this.scorecard.lower_total
+      },
+      scoreIndividualUpper (line, dice_num) {
+        for (var dice of this.all_dice) {
+          if (dice.value === dice_num) {
+            line.score += dice_num
+          }
+        }
+
+        this.scorecard.upper_total += line.score
       }
     }
   }
