@@ -7,6 +7,9 @@
           <div class="tile is-child box">
             <i class="fas fa-dice fancy-title-dice"></i>
             <div class="fancy-title">Vuezee</div>
+            <br>
+            <a class="button is-text" @click="show_howto_modal = true">How To</a>
+            <a class="button is-text" @click="show_about_modal = true">About</a>
           </div>
           <div class="tile is-child box">
             <p>{{ rollText() }}</p>
@@ -18,8 +21,7 @@
               </span>
             </div>
             <p>
-              <button class="button is-primary" @click="rollAll()" :disabled="rollLimitReached()"><i class="fas fa-dice fa-spin"></i></button>
-              <button class="button is-warning" @click="resetDice()">Reset</button>
+              <button class="button is-primary is-large" @click="rollAll()" :disabled="rollLimitReached()"><i class="fas fa-dice fa-spin"></i></button>
             </p>
           </div>
           <div class="tile is-child box">
@@ -87,6 +89,30 @@
         </div>
       </div>
     </div>
+    <div class="modal" :class="[{ 'is-active': show_howto_modal }]">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <div class="content has-text-left">
+             <p>Howto</p>
+          </div>
+          <button class="button" @click="show_howto_modal = false">Close</button>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close" @click="show_howto_modal = false"></button>
+    </div>
+    <div class="modal" :class="[{ 'is-active': show_about_modal }]">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <div class="content has-text-left">
+             <p>About</p>
+          </div>
+          <button class="button" @click="show_about_modal = false">Close</button>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close" @click="show_about_modal = false"></button>
+    </div>
   </div>
 </template>
 
@@ -95,6 +121,8 @@
     name: 'game',
     data () {
       return {
+        show_about_modal: false,
+        show_howto_modal: false,
         roll_count: 0,
         all_dice: [
           {
@@ -228,7 +256,7 @@
           ],
           upper_total: 0,
           lower_total: 0,
-          grand_total: 0,
+          grand_total: 0
         }
       }
     },
@@ -254,7 +282,7 @@
         return this.roll_count >= 3
       },
       diceClass (value) {
-        switch(value) {
+        switch (value) {
           case 1: return 'fa-dice-one'
           case 2: return 'fa-dice-two'
           case 3: return 'fa-dice-three'
@@ -265,7 +293,7 @@
         }
       },
       rollText () {
-        switch(this.roll_count) {
+        switch (this.roll_count) {
           case 1: return 'First Roll'
           case 2: return 'Second Roll'
           case 3: return 'Final Roll. Please Score.'
@@ -281,11 +309,11 @@
         }
       },
       scoreRoll (line) {
-        if (line.scored || this.roll_count == 0 || line.id === 'bonus') {
+        if (line.scored || this.roll_count === 0 || line.id === 'bonus') {
           return
         }
 
-        switch(line.id) {
+        switch (line.id) {
           case 'aces':
             this.scoreIndividualUpper(line, 1)
             break
