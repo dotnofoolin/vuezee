@@ -393,46 +393,21 @@
         this.scorecard.upper_total += line.score
       },
       scoreXOfAKind (line, limit) {
-        // Use some ES6 hotness to key by a number value
-        var dice_check = new Map()
-        dice_check.set(1, 0)
-        dice_check.set(2, 0)
-        dice_check.set(3, 0)
-        dice_check.set(4, 0)
-        dice_check.set(5, 0)
-        dice_check.set(6, 0)
+        var dice_check = this.buildDiceCheckMap()
 
-        var dice_total = 0
-
-        for (var dice of this.all_dice) {
-          dice_total += dice.value
-          dice_check.set(dice.value, dice_check.get(dice.value) + 1)
-        }
-
-        for (var value of dice_check.values()) {
+        for (var value of dice_check.dice_map_values) {
           if (value >= limit) {
-            line.score = dice_total
-            this.scorecard.lower_total += dice_total
+            line.score = dice_check.dice_total
+            this.scorecard.lower_total += dice_check.dice_total
           }
         }
       },
       scoreFullHouse (line) {
-        // Use some ES6 hotness to key by a number value
-        var dice_check = new Map()
-        dice_check.set(1, 0)
-        dice_check.set(2, 0)
-        dice_check.set(3, 0)
-        dice_check.set(4, 0)
-        dice_check.set(5, 0)
-        dice_check.set(6, 0)
-
-        for (var dice of this.all_dice) {
-          dice_check.set(dice.value, dice_check.get(dice.value) + 1)
-        }
+        var dice_check = this.buildDiceCheckMap()
 
         var has_2 = false
         var has_3 = false
-        for (var value of dice_check.values()) {
+        for (var value of dice_check.dice_map_values) {
           if (value === 2) { has_2 = true }
           if (value === 3) { has_3 = true }
         }
@@ -443,14 +418,7 @@
         }
       },
       scoreSmallStraight (line) {
-        var dice_check = []
-        for (var dice of this.all_dice) {
-          if (!dice_check.includes(dice.value)) {
-            dice_check.push(dice.value)
-          }
-        }
-
-        dice_check.sort()
+        var dice_check = this.buildDiceCheckArray()
 
         if (dice_check.length >= 4) {
           dice_check = dice_check.slice(0, 4) // Small straight only needs 4 dice
@@ -464,14 +432,7 @@
         }
       },
       scoreLargeStraight (line) {
-        var dice_check = []
-        for (var dice of this.all_dice) {
-          if (!dice_check.includes(dice.value)) {
-            dice_check.push(dice.value)
-          }
-        }
-
-        dice_check.sort()
+        var dice_check = this.buildDiceCheckArray()
 
         if (dice_check.length === 5) {
           if (
@@ -483,12 +444,7 @@
         }
       },
       scoreVuezee (line) {
-        var dice_check = []
-        for (var dice of this.all_dice) {
-          if (!dice_check.includes(dice.value)) {
-            dice_check.push(dice.value)
-          }
-        }
+        var dice_check = this.buildDiceCheckArray()
 
         if (dice_check.length === 1) {
           // It's possible to score another vuezee for a bonus of 100.
@@ -507,6 +463,35 @@
         }
 
         this.scorecard.lower_total += line.score
+      },
+      buildDiceCheckArray () {
+        var dice_check = []
+        for (var dice of this.all_dice) {
+          if (!dice_check.includes(dice.value)) {
+            dice_check.push(dice.value)
+          }
+        }
+
+        return dice_check.sort()
+      },
+      buildDiceCheckMap () {
+        // Use some ES6 hotness to key by a number value
+        var dice_map = new Map()
+        dice_map.set(1, 0)
+        dice_map.set(2, 0)
+        dice_map.set(3, 0)
+        dice_map.set(4, 0)
+        dice_map.set(5, 0)
+        dice_map.set(6, 0)
+
+        var dice_total = 0
+
+        for (var dice of this.all_dice) {
+          dice_total += dice.value
+          dice_map.set(dice.value, dice_map.get(dice.value) + 1)
+        }
+
+        return { dice_total: dice_total, dice_map_values: dice_map.values() }
       },
       gameComplete () {
         var upper_complete = false
