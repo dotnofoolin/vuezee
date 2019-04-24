@@ -96,7 +96,15 @@
       <div class="modal-content">
         <div class="box">
           <div class="content has-text-left">
-             <p>Howto</p>
+            <p>How To Play Vuezee</p>
+              <p>
+                <ol>
+                  <li>Click the Roll button (spinning dice) to begin your first roll.</li>
+                  <li>You have 3 rolls to try and make scoreable combos.</li>
+                  <li>Click the line in the scorecard you wish to score your dice.</li>
+                  <li>Repeat until you've completed the scorecard.</li>
+                </ol>
+              </p>
           </div>
           <button class="button" @click="show_howto_modal = false">Close</button>
         </div>
@@ -107,8 +115,13 @@
       <div class="modal-background"></div>
       <div class="modal-content">
         <div class="box">
-          <div class="content has-text-left">
-             <p>About</p>
+          <div class="content">
+            <p>Vuezee is a Yahtzee clone created with Vue.js, Bulma, and FontAwesome.</p>
+            <hr>
+            <p>Created by Josh Burks</p>
+            <a href="https://github.com/dotnofoolin/vuezee" target="_blank">
+              https://github.com/dotnofoolin/vuezee
+            </a>
           </div>
           <button class="button" @click="show_about_modal = false">Close</button>
         </div>
