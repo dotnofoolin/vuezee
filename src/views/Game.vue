@@ -12,7 +12,7 @@
             <a class="button is-text" @click="show_about_modal = true">About</a>
           </div>
           <div class="tile is-child box">
-            <p>{{ rollText() }}</p>
+            <p class="is-size-5">{{ rollText() }}</p>
             <div class="is-marginless">
               <span v-for="dice in all_dice" :key="dice.dice_id">
                 <span class="dice-size is-size-1-mobile">
@@ -21,11 +21,13 @@
               </span>
             </div>
             <p>
-              <button class="button is-primary is-large" @click="rollAll()" :disabled="rollLimitReached()"><i class="fas fa-dice fa-spin"></i></button>
+              <button class="button is-primary is-large" @click="rollAll()" :disabled="rollLimitReached() || gameComplete()">
+                <i class="fas fa-dice" :class="[{ 'fa-spin': !rollLimitReached() && !gameComplete() }]"></i>
+              </button>
             </p>
           </div>
           <div class="tile is-child box">
-            <p>Vuezee is Yahtzee implemented in Vue.js for fun.</p>
+            <p class="is-size-5">High Scores on This Machine</p>
           </div>
         </div>
         <div class="tile is-parent">
@@ -198,7 +200,7 @@
             {
               id: 'bonus',
               label: 'Bonus',
-              howto: '35 Points if Aces thru Sixes >= 63',
+              howto: 'If Aces thru Sixes Summed >= 63 (35)',
               score: 0,
               scored: false
             }
@@ -293,6 +295,10 @@
         }
       },
       rollText () {
+        if (this.gameComplete()) {
+          return 'Game Complete! Thanks for Playing!'
+        }
+
         switch (this.roll_count) {
           case 1: return 'First Roll'
           case 2: return 'Second Roll'
@@ -308,8 +314,15 @@
           dice.selected = false
         }
       },
+      addGrandTotal () {
+        this.scorecard.grand_total = this.scorecard.upper_total + this.scorecard.lower_total
+      },
       scoreRoll (line) {
-        if (line.scored || this.roll_count === 0 || line.id === 'bonus') {
+        if (this.roll_count === 0) {
+          return
+        }
+
+        if ((line.scored || line.id === 'bonus') && line.id !== 'vuezee') {
           return
         }
 
@@ -332,6 +345,27 @@
           case 'sixes':
             this.scoreIndividualUpper(line, 6)
             break
+          case 'three_of_a_kind':
+            this.scoreXOfAKind(line, 3)
+            break
+          case 'four_of_a_kind':
+            this.scoreXOfAKind(line, 4)
+            break
+          case 'full_house':
+            this.scoreFullHouse(line)
+            break
+          case 'small_straight':
+            this.scoreSmallStraight(line)
+            break
+          case 'large_straight':
+            this.scoreLargeStraight(line)
+            break
+          case 'vuezee':
+            this.scoreVuezee(line)
+            break
+          case 'chance':
+            this.scoreChance(line)
+            break
           default: console.log(line.id)
         }
 
@@ -349,9 +383,6 @@
         this.addGrandTotal()
         this.resetDice()
       },
-      addGrandTotal () {
-        this.scorecard.grand_total = this.scorecard.upper_total + this.scorecard.lower_total
-      },
       scoreIndividualUpper (line, dice_num) {
         for (var dice of this.all_dice) {
           if (dice.value === dice_num) {
@@ -360,6 +391,139 @@
         }
 
         this.scorecard.upper_total += line.score
+      },
+      scoreXOfAKind (line, limit) {
+        // Use some ES6 hotness to key by a number value
+        var dice_check = new Map()
+        dice_check.set(1, 0)
+        dice_check.set(2, 0)
+        dice_check.set(3, 0)
+        dice_check.set(4, 0)
+        dice_check.set(5, 0)
+        dice_check.set(6, 0)
+
+        var dice_total = 0
+
+        for (var dice of this.all_dice) {
+          dice_total += dice.value
+          dice_check.set(dice.value, dice_check.get(dice.value) + 1)
+        }
+
+        for (var value of dice_check.values()) {
+          if (value >= limit) {
+            line.score = dice_total
+            this.scorecard.lower_total += dice_total
+          }
+        }
+      },
+      scoreFullHouse (line) {
+        // Use some ES6 hotness to key by a number value
+        var dice_check = new Map()
+        dice_check.set(1, 0)
+        dice_check.set(2, 0)
+        dice_check.set(3, 0)
+        dice_check.set(4, 0)
+        dice_check.set(5, 0)
+        dice_check.set(6, 0)
+
+        for (var dice of this.all_dice) {
+          dice_check.set(dice.value, dice_check.get(dice.value) + 1)
+        }
+
+        var has_2 = false
+        var has_3 = false
+        for (var value of dice_check.values()) {
+          if (value === 2) { has_2 = true }
+          if (value === 3) { has_3 = true }
+        }
+
+        if (has_2 && has_3) {
+          line.score = 25
+          this.scorecard.lower_total += 25
+        }
+      },
+      scoreSmallStraight (line) {
+        var dice_check = []
+        for (var dice of this.all_dice) {
+          if (!dice_check.includes(dice.value)) {
+            dice_check.push(dice.value)
+          }
+        }
+
+        dice_check.sort()
+
+        if (dice_check.length >= 4) {
+          dice_check = dice_check.slice(0, 4) // Small straight only needs 4 dice
+          if (
+            this.$_.isEqual(dice_check, [1, 2, 3, 4]) ||
+            this.$_.isEqual(dice_check, [2, 3, 4, 5]) ||
+            this.$_.isEqual(dice_check, [3, 4, 5, 6])) {
+              line.score = 30
+              this.scorecard.lower_total += 30
+          }
+        }
+      },
+      scoreLargeStraight (line) {
+        var dice_check = []
+        for (var dice of this.all_dice) {
+          if (!dice_check.includes(dice.value)) {
+            dice_check.push(dice.value)
+          }
+        }
+
+        dice_check.sort()
+
+        if (dice_check.length === 5) {
+          if (
+            this.$_.isEqual(dice_check, [1, 2, 3, 4, 5]) ||
+            this.$_.isEqual(dice_check, [2, 3, 4, 5, 6])) {
+              line.score = 40
+              this.scorecard.lower_total += 40
+          }
+        }
+      },
+      scoreVuezee (line) {
+        var dice_check = []
+        for (var dice of this.all_dice) {
+          if (!dice_check.includes(dice.value)) {
+            dice_check.push(dice.value)
+          }
+        }
+
+        if (dice_check.length === 1) {
+          // It's possible to score another vuezee for a bonus of 100.
+          if (line.scored) {
+            line.score += 100
+            this.scorecard.lower_total += 100
+          } else {
+            line.score = 50
+            this.scorecard.lower_total += 50
+          }
+        }
+      },
+      scoreChance (line) {
+        for (var dice of this.all_dice) {
+          line.score += dice.value
+        }
+
+        this.scorecard.lower_total += line.score
+      },
+      gameComplete () {
+        var upper_complete = false
+        if (this.scorecard.upper_section.filter(l => l.id !== 'bonus').filter(l => l.scored === false).length === 0) {
+          upper_complete = true
+        }
+
+        var lower_complete = false
+        if (this.scorecard.lower_section.filter(l => l.scored === false).length === 0) {
+          lower_complete = true
+        }
+
+        if (upper_complete && lower_complete) {
+          return true
+        }
+
+        return false
       }
     }
   }
