@@ -4,6 +4,9 @@ import router from './router'
 import 'bulma/css/bulma.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 
+import _ from 'lodash'
+Object.defineProperty(Vue.prototype, '$_', { value: _ })
+
 Vue.config.productionTip = false
 
 new Vue({
