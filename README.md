@@ -1,5 +1,7 @@
 # Vuezee - Yahtzee implemented in Vue for fun (no profit).
 
+![](screenshot.png)
+
 ## Project setup
 ```
 yarn install
