@@ -97,6 +97,7 @@
       - log highscores
   */
 
+  import { mapActions } from 'vuex'
   import TitleHowtoAbout from '@/components/TitleHowtoAbout'
   import Highscores from '@/components/Highscores'
 
@@ -245,7 +246,15 @@
         }
       }
     },
+    mounted () {
+      this.fetchHighscores()
+    },
     methods: {
+      ...mapActions(
+        'highscores', [
+          'saveHighscore', 'fetchHighscores'
+        ]
+      ),
       roll (dice) {
         dice.value = Math.floor(Math.random() * 6) + 1
       },
@@ -365,6 +374,11 @@
         line.scored = true
         this.addGrandTotal()
         this.resetDice()
+
+        // Save the total to the highscores store.
+        if (this.gameComplete()) {
+          this.saveHighscore(this.scorecard.grand_total)
+        }
       },
       scoreIndividualUpper (line, dice_num) {
         for (var dice of this.all_dice) {
@@ -434,8 +448,8 @@
           if (line.scored && line.score !== 0) {
             line.score += 100
             this.scorecard.lower_total += 100
-          } 
-          
+          }
+
           if (!line.scored) {
             line.score = 50
             this.scorecard.lower_total += 50
