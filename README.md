@@ -1,4 +1,4 @@
-# vuezee - Yahtzee implemented in Vue for fun (no profit).
+# Vuezee - Yahtzee implemented in Vue for fun (no profit).
 
 ## Project setup
 ```
@@ -32,6 +32,3 @@ yarn run test:unit
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
-
-### Thanks
-- Dice CSS classes: https://github.com/diafygi/dice-css

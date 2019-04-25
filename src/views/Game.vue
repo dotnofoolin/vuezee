@@ -1,12 +1,12 @@
 <template>
-  <div id="game" class="has-background-info">
+  <div id="game">
     <div class="container">
       <br>
       <div class="tile is-ancestor">
         <div class="tile is-parent is-4 is-vertical">
           <div class="tile is-child box">
-            <i class="fas fa-dice fancy-title-dice"></i>
-            <div class="fancy-title">Vuezee</div>
+            <i class="fas fa-dice fancy-title-dice has-text-info"></i>
+            <div class="fancy-title has-text-info">Vuezee</div>
             <br>
             <a class="button is-text" @click="show_howto_modal = true">How To</a>
             <a class="button is-text" @click="show_about_modal = true">About</a>
@@ -16,7 +16,7 @@
             <div class="is-marginless">
               <span v-for="dice in all_dice" :key="dice.dice_id">
                 <span class="dice-size is-size-1-mobile">
-                  <i class="fas pointed-cursor" :class="[{ 'has-text-primary': dice.selected }, diceClass(dice.value)]" @click="toggleSelected(dice)"></i>
+                  <i class="fas pointed-cursor" :class="[{ 'has-text-info': dice.selected }, diceClass(dice.value)]" @click="toggleSelected(dice)"></i>
                 </span>
               </span>
             </div>
@@ -44,7 +44,7 @@
                 <tr class="pointed-cursor" v-for="line in scorecard.upper_section" :key="line.label" @click="scoreRoll(line)">
                   <td>{{ line.label }}</td>
                   <td>{{ line.howto }}</td>
-                  <td>{{ line.score }} <i class="fas fa-check" v-if="line.scored"></i></td>
+                  <td>{{ line.score }} <i class="fas fa-check has-text-primary" v-if="line.scored"></i></td>
                 </tr>
               </tbody>
             </table>
@@ -60,7 +60,7 @@
                 <tr class="pointed-cursor" v-for="line in scorecard.lower_section" :key="line.label" @click="scoreRoll(line)">
                   <td>{{ line.label }}</td>
                   <td>{{ line.howto }}</td>
-                  <td>{{ line.score }} <i class="fas fa-check" v-if="line.scored"></i></td>
+                  <td>{{ line.score }} <i class="fas fa-check has-text-primary" v-if="line.scored"></i></td>
                 </tr>
               </tbody>
             </table>
@@ -106,7 +106,7 @@
                 </ol>
               </p>
           </div>
-          <button class="button" @click="show_howto_modal = false">Close</button>
+          <button class="button is-info" @click="show_howto_modal = false">Close</button>
         </div>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="show_howto_modal = false"></button>
@@ -123,7 +123,7 @@
               https://github.com/dotnofoolin/vuezee
             </a>
           </div>
-          <button class="button" @click="show_about_modal = false">Close</button>
+          <button class="button is-info" @click="show_about_modal = false">Close</button>
         </div>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="show_about_modal = false"></button>
@@ -528,8 +528,6 @@
 </script>
 
 <style scoped lang="scss">
-  @import url('https://fonts.googleapis.com/css?family=Pacifico');
-
   #game {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
