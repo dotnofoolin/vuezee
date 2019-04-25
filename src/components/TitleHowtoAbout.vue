@@ -1,5 +1,5 @@
 <template>
-  <div id="title">
+  <div id="title-howto-about">
     <i class="fas fa-dice fancy-title-dice has-text-info"></i>
     <div class="fancy-title has-text-info">Vuezee</div>
     <br>

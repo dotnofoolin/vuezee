@@ -23,7 +23,7 @@
             </p>
           </div>
           <div class="tile is-child box">
-            <p class="is-size-5">High Scores on This Machine</p>
+            <highscores></highscores>
           </div>
         </div>
         <div class="tile is-parent">
@@ -92,19 +92,19 @@
 
 <script>
   /* TODO
-      - move things to components (like highscore tiles)
       - move dice and scorecard to Vuex (maybe not dice)
       - reset game/scorecard
       - log highscores
-      - prevent playing on vuezee if it was scored 0
   */
 
   import TitleHowtoAbout from '@/components/TitleHowtoAbout'
+  import Highscores from '@/components/Highscores'
 
   export default {
     name: 'game',
     components: {
-      'title-howto-about': TitleHowtoAbout
+      'title-howto-about': TitleHowtoAbout,
+      'highscores': Highscores
     },
     data () {
       return {
@@ -227,7 +227,7 @@
             {
               id: 'vuezee',
               label: 'Vuezee',
-              howto: '5 of a Kind (50)',
+              howto: '5 of a Kind (50). Bonus for additionals (100)',
               score: 0,
               scored: false
             },
@@ -431,10 +431,12 @@
 
         if (dice_check.length === 1) {
           // It's possible to score another vuezee for a bonus of 100.
-          if (line.scored) {
+          if (line.scored && line.score !== 0) {
             line.score += 100
             this.scorecard.lower_total += 100
-          } else {
+          } 
+          
+          if (!line.scored) {
             line.score = 50
             this.scorecard.lower_total += 50
           }
