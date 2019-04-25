@@ -92,11 +92,7 @@
 </template>
 
 <script>
-  /* TODO
-      - move dice and scorecard to Vuex (maybe not dice)
-  */
-
-  import { mapActions } from 'vuex'
+  import { mapActions, mapState } from 'vuex'
   import TitleHowtoAbout from '@/components/TitleHowtoAbout'
   import Highscores from '@/components/Highscores'
 
@@ -105,6 +101,13 @@
     components: {
       'title-howto-about': TitleHowtoAbout,
       'highscores': Highscores
+    },
+    computed: {
+      ...mapState(
+        'scorecard', [
+          'scorecard'
+        ]
+      )
     },
     data () {
       return {
@@ -135,123 +138,22 @@
             value: null,
             selected: false
           }
-        ],
-        scorecard: {
-          upper_section: [
-            {
-              id: 'aces',
-              label: 'Aces',
-              howto: 'Count and Score Only Aces',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'twos',
-              label: 'Twos',
-              howto: 'Count and Score Only Twos',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'threes',
-              label: 'Threes',
-              howto: 'Count and Score Only Threes',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'fours',
-              label: 'Fours',
-              howto: 'Count and Score Only Fours',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'fives',
-              label: 'Fives',
-              howto: 'Count and Score Only Fives',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'sixes',
-              label: 'Sixes',
-              howto: 'Count and Score Only Sixes',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'bonus',
-              label: 'Bonus',
-              howto: 'If Aces thru Sixes Summed >= 63 (35)',
-              score: 0,
-              scored: false
-            }
-          ],
-          lower_section: [
-            {
-              id: 'three_of_a_kind',
-              label: '3 of a Kind',
-              howto: 'Add Total of All Dice',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'four_of_a_kind',
-              label: '4 of a Kind',
-              howto: 'Add Total of All Dice',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'full_house',
-              label: 'Full House',
-              howto: 'One Triple and One Double (25)',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'small_straight',
-              label: 'Small Straight',
-              howto: 'Sequence of 4 (30)',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'large_straight',
-              label: 'Large Straight',
-              howto: 'Sequence of 5 (40)',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'vuezee',
-              label: 'Vuezee',
-              howto: '5 of a Kind (50). Bonus for additionals (100)',
-              score: 0,
-              scored: false
-            },
-            {
-              id: 'chance',
-              label: 'Chance',
-              howto: 'Add All 5 Dice',
-              score: 0,
-              scored: false
-            }
-          ],
-          upper_total: 0,
-          lower_total: 0,
-          grand_total: 0
-        }
+        ]
       }
     },
     mounted () {
+      this.fetchScorecard()
       this.fetchHighscores()
     },
     methods: {
       ...mapActions(
         'highscores', [
           'saveHighscore', 'fetchHighscores'
+        ],
+      ),
+      ...mapActions(
+        'scorecard', [
+          'updateScorecard', 'fetchScorecard'
         ]
       ),
       roll (dice) {
@@ -373,6 +275,7 @@
         line.scored = true
         this.addGrandTotal()
         this.resetDice()
+        this.updateScorecard()
 
         // Save the total to the highscores store.
         if (this.gameComplete()) {
@@ -511,17 +414,19 @@
       newGame () {
         this.resetDice()
 
-        for (var line of this.scorecard.upper_section) {
-          line.score = 0
-          line.scored = false
+        for (var upper_line of this.scorecard.upper_section) {
+          upper_line.score = 0
+          upper_line.scored = false
         }
 
-        for (var line of this.scorecard.lower_section) {
-          line.score = 0
-          line.scored = false
+        for (var lower_line of this.scorecard.lower_section) {
+          lower_line.score = 0
+          lower_line.scored = false
         }
 
         this.scorecard.upper_total = this.scorecard.lower_total = this.scorecard.grand_total = 0
+
+        this.updateScorecard()
       }
     }
   }
@@ -534,10 +439,6 @@
     text-align: center;
   }
 
-  .fancy-title-dice {
-    font-size: 5em;
-  }
-
   .dice-size {
     font-size: 4em;
     padding-left: .10em;
@@ -546,13 +447,6 @@
 
   .pointed-cursor {
     cursor: pointer;
-  }
-
-  .fancy-title {
-    font-family: 'Pacifico', cursive;
-    font-size: 6em;
-    transform-origin: center;
-    transform: rotate(-15deg);
   }
 
   .section-title {
