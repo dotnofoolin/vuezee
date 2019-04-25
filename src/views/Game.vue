@@ -38,9 +38,9 @@
               </thead>
               <tbody>
                 <tr class="pointed-cursor" v-for="line in scorecard.upper_section" :key="line.label" @click="scoreRoll(line)">
-                  <td>{{ line.label }}</td>
+                  <td>{{ line.label }} <i class="fas fa-check has-text-primary" v-if="line.scored"></i></td>
                   <td>{{ line.howto }}</td>
-                  <td>{{ line.score }} <i class="fas fa-check has-text-primary" v-if="line.scored"></i></td>
+                  <td>{{ line.score }}</td>
                 </tr>
               </tbody>
             </table>
@@ -54,9 +54,9 @@
               </thead>
               <tbody>
                 <tr class="pointed-cursor" v-for="line in scorecard.lower_section" :key="line.label" @click="scoreRoll(line)">
-                  <td>{{ line.label }}</td>
+                  <td>{{ line.label }} <i class="fas fa-check has-text-primary" v-if="line.scored"></i></td>
                   <td>{{ line.howto }}</td>
-                  <td>{{ line.score }} <i class="fas fa-check has-text-primary" v-if="line.scored"></i></td>
+                  <td>{{ line.score }}</td>
                 </tr>
               </tbody>
             </table>
@@ -83,6 +83,7 @@
                 </tr>
               </tbody>
             </table>
+            <button class="button is-info" @click="newGame()">New Game</button>
           </div>
         </div>
       </div>
@@ -93,8 +94,6 @@
 <script>
   /* TODO
       - move dice and scorecard to Vuex (maybe not dice)
-      - reset game/scorecard
-      - log highscores
   */
 
   import { mapActions } from 'vuex'
@@ -508,6 +507,21 @@
         }
 
         return false
+      },
+      newGame () {
+        this.resetDice()
+
+        for (var line of this.scorecard.upper_section) {
+          line.score = 0
+          line.scored = false
+        }
+
+        for (var line of this.scorecard.lower_section) {
+          line.score = 0
+          line.scored = false
+        }
+
+        this.scorecard.upper_total = this.scorecard.lower_total = this.scorecard.grand_total = 0
       }
     }
   }
