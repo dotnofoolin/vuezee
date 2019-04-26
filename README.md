@@ -1,5 +1,7 @@
 # Vuezee - Yahtzee implemented in Vue for fun (no profit).
 
+Play It: [https://dotnofoolin.github.io/vuezee/](https://dotnofoolin.github.io/vuezee/)
+
 ![](screenshot.png)
 
 ## Project setup
