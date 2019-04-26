@@ -149,7 +149,7 @@
       ...mapActions(
         'highscores', [
           'saveHighscore', 'fetchHighscores'
-        ],
+        ]
       ),
       ...mapActions(
         'scorecard', [
