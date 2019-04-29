@@ -153,7 +153,7 @@
       ),
       ...mapActions(
         'scorecard', [
-          'updateScorecard', 'fetchScorecard'
+          'updateScorecard', 'fetchScorecard', 'resetScorecard'
         ]
       ),
       roll (dice) {
@@ -259,7 +259,7 @@
           case 'chance':
             this.scoreChance(line)
             break
-          default: console.log(line.id)
+          default: return
         }
 
         // Check for bonus and score it.
@@ -413,20 +413,7 @@
       },
       newGame () {
         this.resetDice()
-
-        for (var upper_line of this.scorecard.upper_section) {
-          upper_line.score = 0
-          upper_line.scored = false
-        }
-
-        for (var lower_line of this.scorecard.lower_section) {
-          lower_line.score = 0
-          lower_line.scored = false
-        }
-
-        this.scorecard.upper_total = this.scorecard.lower_total = this.scorecard.grand_total = 0
-
-        this.updateScorecard()
+        this.resetScorecard()
       }
     }
   }

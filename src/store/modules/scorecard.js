@@ -127,6 +127,24 @@ const actions = {
     if (local_scorecard) {
         context.commit('SAVE_SCORECARD', JSON.parse(local_scorecard))
     }
+  },
+  resetScorecard: (context) => {
+    var new_scorecard = state.scorecard
+
+    for (var upper_line of new_scorecard.upper_section) {
+      upper_line.score = 0
+      upper_line.scored = false
+    }
+
+    for (var lower_line of new_scorecard.lower_section) {
+      lower_line.score = 0
+      lower_line.scored = false
+    }
+
+    new_scorecard.upper_total = new_scorecard.lower_total = new_scorecard.grand_total = 0
+
+    context.commit('SAVE_SCORECARD', new_scorecard)
+    context.dispatch('updateScorecard')
   }
 }
 
