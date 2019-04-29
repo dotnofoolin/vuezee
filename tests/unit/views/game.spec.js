@@ -3,6 +3,7 @@ import { store, localVue } from '../test_helper'
 import Game from '@/views/Game.vue'
 
 const factory = () => {
+  store.dispatch('scorecard/resetScorecard')
   return shallowMount(Game, { store, localVue })
 }
 
@@ -159,7 +160,18 @@ describe('Game.vue', () => {
       expect(wrapper.vm.rollText()).toEqual('Final Roll. Please Score.')
     })
 
-    xit('returns different text when game is complete', () => {
+    it('returns different text when game is complete', () => {
+      const wrapper = factory()
+
+      for (var upper_line of wrapper.vm.scorecard.upper_section) {
+        upper_line.scored = true
+      }
+
+      for (var lower_line of wrapper.vm.scorecard.lower_section) {
+        lower_line.scored = true
+      }
+
+      expect(wrapper.vm.rollText()).toEqual('Game Complete! Thanks for Playing!')
     })
   })
 
@@ -190,12 +202,452 @@ describe('Game.vue', () => {
     })
   })
 
-  /*
-  describe('Game.vue', () => {
-    it('sets default data values', () => {
-      const wrapper = factory()
+  describe('scoreRoll', () => {
+    describe('when roll_count is 0', () => {
+      it('returns without changing scores', () => {
+        const wrapper = factory()
 
+        var line = wrapper.vm.scorecard.upper_section[0]
+        var expected = wrapper.vm.scorecard.grand_total
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when line is already scored', () => {
+      it('returns without changing scores', () => {
+        const wrapper = factory()
+
+        var line = wrapper.vm.scorecard.upper_section[0]
+        line.scored = true
+        var expected = wrapper.vm.scorecard.grand_total
+
+        wrapper.vm.rollAll()
+        wrapper.vm.scoreRoll(line)
+
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when unknown line id', () => {
+      it('returns without changing scores', () => {
+        const wrapper = factory()
+
+        var line = wrapper.vm.scorecard.upper_section[0]
+        line.id = 'random_garbage'
+        var expected = wrapper.vm.scorecard.grand_total
+
+        wrapper.vm.rollAll()
+        wrapper.vm.scoreRoll(line)
+
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+        line.id = 'aces' // Change it back since it's stored in the store.
+      })
+    })
+
+    describe('when scoring aces', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 1
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'aces')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring twos', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 2
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'twos')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring threes', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 3
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'threes')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring fours', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 4
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'fours')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring fives', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 5
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'fives')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring sixes', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 6
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'sixes')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring - check for bonus', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'twos')[0]
+        var bonus_line = wrapper.vm.scorecard.upper_section.filter(l => l.id === 'bonus')[0]
+        wrapper.vm.roll_count = 1
+        wrapper.vm.scorecard.upper_total = 65
+
+        expect(bonus_line.scored).toBe(false)
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(bonus_line.scored).toBe(true)
+        expect(bonus_line.score).toEqual(35)
+        expect(wrapper.vm.scorecard.upper_total).toEqual(100)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(100)
+      })
+    })
+
+    describe('when scoring three_of_a_kind', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 6
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'three_of_a_kind')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring four_of_a_kind', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var dice_value = 6
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          dice.value = dice_value
+          expected += dice_value
+        }
+
+        var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'four_of_a_kind')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring full_house', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var expected = 25
+        wrapper.vm.all_dice[0].value = 1
+        wrapper.vm.all_dice[1].value = 1
+        wrapper.vm.all_dice[2].value = 2
+        wrapper.vm.all_dice[3].value = 2
+        wrapper.vm.all_dice[4].value = 2
+
+        var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'full_house')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring small_straight', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var expected = 30
+        wrapper.vm.all_dice[0].value = 1
+        wrapper.vm.all_dice[1].value = 2
+        wrapper.vm.all_dice[2].value = 3
+        wrapper.vm.all_dice[3].value = 4
+        wrapper.vm.all_dice[4].value = 1
+
+        var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'small_straight')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring large_straight', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        var expected = 40
+        wrapper.vm.all_dice[0].value = 1
+        wrapper.vm.all_dice[1].value = 2
+        wrapper.vm.all_dice[2].value = 3
+        wrapper.vm.all_dice[3].value = 4
+        wrapper.vm.all_dice[4].value = 5
+
+        var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'large_straight')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
+    })
+
+    describe('when scoring vuezee', () => {
+      describe('when it is the first one', () => {
+        it('saves proper scores', () => {
+          const wrapper = factory()
+
+          var dice_value = 6
+          var expected = 50
+          for (var dice of wrapper.vm.all_dice) {
+            dice.value = dice_value
+          }
+
+          var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'vuezee')[0]
+          wrapper.vm.roll_count = 1
+
+          wrapper.vm.scoreRoll(line)
+
+          expect(line.scored).toBe(true)
+          expect(line.score).toEqual(expected)
+          expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+          expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+        })
+      })
+
+      describe('when it is the second one', () => {
+        it('saves proper scores', () => {
+          const wrapper = factory()
+
+          var dice_value = 6
+          var expected = 150
+          for (var dice of wrapper.vm.all_dice) {
+            dice.value = dice_value
+          }
+
+          var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'vuezee')[0]
+          line.scored = true
+          line.score = 50
+          wrapper.vm.scorecard.lower_total = 50
+          wrapper.vm.roll_count = 1
+
+          wrapper.vm.scoreRoll(line)
+
+          expect(line.scored).toBe(true)
+          expect(line.score).toEqual(expected)
+          expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+          expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+        })
+      })
+    })
+
+    describe('when scoring chance', () => {
+      it('saves proper scores', () => {
+        const wrapper = factory()
+
+        wrapper.vm.rollAll()
+        var expected = 0
+        for (var dice of wrapper.vm.all_dice) {
+          expected += dice.value
+        }
+
+        var line = wrapper.vm.scorecard.lower_section.filter(l => l.id === 'chance')[0]
+        wrapper.vm.roll_count = 1
+
+        wrapper.vm.scoreRoll(line)
+
+        expect(line.scored).toBe(true)
+        expect(line.score).toEqual(expected)
+        expect(wrapper.vm.scorecard.lower_total).toEqual(expected)
+        expect(wrapper.vm.scorecard.grand_total).toEqual(expected)
+      })
     })
   })
-  */
+
+  describe('gameComplete', () => {
+    it('returns true when all scorecard lines are scored', () => {
+      const wrapper = factory()
+
+      for (var upper_line of wrapper.vm.scorecard.upper_section) {
+        upper_line.scored = true
+      }
+
+      for (var lower_line of wrapper.vm.scorecard.lower_section) {
+        lower_line.scored = true
+      }
+
+      expect(wrapper.vm.gameComplete()).toBe(true)
+    })
+
+    it('returns false if not all the scorecard lines are scored', () => {
+      const wrapper = factory()
+
+      for (var upper_line of wrapper.vm.scorecard.upper_section) {
+        upper_line.scored = true
+      }
+
+      for (var lower_line of wrapper.vm.scorecard.lower_section) {
+        lower_line.scored = false
+      }
+
+      expect(wrapper.vm.gameComplete()).toBe(false)
+    })
+  })
+
+  describe('newGame', () => {
+    it('resets dice and scorecard', () => {
+      const wrapper = factory()
+
+      wrapper.vm.newGame()
+
+      expect(wrapper.vm.roll_count).toEqual(0)
+
+      for (var dice of wrapper.vm.all_dice) {
+        expect(dice.value).toBeNull()
+        expect(dice.selected).toBe(false)
+      }
+
+      for (var upper_line of wrapper.vm.scorecard.upper_section) {
+        expect(upper_line.score).toEqual(0)
+        expect(upper_line.scored).toBe(false)
+      }
+
+      for (var lower_line of wrapper.vm.scorecard.lower_section) {
+        expect(lower_line.score).toEqual(0)
+        expect(lower_line.scored).toBe(false)
+      }
+
+      expect(wrapper.vm.scorecard.upper_total).toEqual(0)
+      expect(wrapper.vm.scorecard.lower_total).toEqual(0)
+      expect(wrapper.vm.scorecard.grand_total).toEqual(0)
+    })
+  })
 })
