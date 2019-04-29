@@ -3,8 +3,8 @@
     <i class="fas fa-dice fancy-title-dice has-text-info"></i>
     <div class="fancy-title has-text-info">Vuezee</div>
     <br>
-    <a class="button is-text" @click="show_howto_modal = true">How To</a>
-    <a class="button is-text" @click="show_about_modal = true">About</a>
+    <a id="howto-button" class="button is-text" @click="show_howto_modal = true">How To</a>
+    <a id="about-button" class="button is-text" @click="show_about_modal = true">About</a>
     <div class="modal" :class="[{ 'is-active': show_howto_modal }]">
       <div class="modal-background"></div>
       <div class="modal-content">
